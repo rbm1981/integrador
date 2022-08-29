@@ -40,7 +40,8 @@ functions:
           cors: true
 
   CreateCard:
-    handler: create-card/create-card.handler
+    # handler: create-card/create-card.handler
+    handler: create-card/handler/create-card.handler
     name: ${self:service}-${self:provider.stage}-create-card-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
