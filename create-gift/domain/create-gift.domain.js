@@ -1,19 +1,16 @@
-const { CreateClientValidation } = require("../schema/input/create-client.input");
 const { createGiftService } = require("../service/create-gift.service");
 const { giftChoser } = require("../helper/gift-chooser.helper");
 
 async function createGiftDomain(eventPayload, eventMeta, rawEvent) {
-  const message = JSON.parse(eventPayload.Message);
-
   const dbParams = {
     ExpressionAttributeNames: {
       "#G": "gift",
     },
     ExpressionAttributeValues: {
-      ":g": giftChoser(message.birth),
+      ":g": giftChoser(eventPayload.birth),
     },
     Key: {
-      "dni": message.dni,
+      "dni": eventPayload.dni,
     },
     ReturnValues: "ALL_NEW",
     UpdateExpression: "SET #G = :g"
@@ -21,8 +18,8 @@ async function createGiftDomain(eventPayload, eventMeta, rawEvent) {
 
 
   console.log('dbParams', dbParams);
-
-
+  
+  
   await createGiftService(dbParams);
 
   return {
