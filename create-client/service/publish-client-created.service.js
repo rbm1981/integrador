@@ -1,4 +1,4 @@
-const sns = require("ebased/service/downstream/sns");
+const sns = require('ebased/service/downstream/sns');
 
 async function publishClientCreated(clientCreatedEvent) {
   const { eventPayload, eventMeta } = clientCreatedEvent.get();
