@@ -1,11 +1,13 @@
-const {
-  CreateClientValidation,
-} = require('../schema/input/create-client.input');
+// const {
+//   CreateClientValidation,
+// } = require('../schema/input/create-client.input');
 const { createProductsService } = require('../service/create-products.serivce');
 
 async function createProductsDomain(commandPayload, commandMeta) {
   // eslint-disable-next-line no-new
-  new CreateClientValidation(commandPayload, commandMeta);
+  // new CreateClientValidation(commandPayload, commandMeta);
+
+  console.log(commandPayload, commandMeta);
 
   const dbParams = commandPayload.map((product) => ({
     PutRequest: {
