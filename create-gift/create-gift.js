@@ -1,74 +1,111 @@
-const DYNAMODB = require("aws-sdk/clients/dynamodb");
+const DYNAMODB = require('aws-sdk/clients/dynamodb');
 
 const dynamodb = new DYNAMODB({
-  region: "us-east-1",
+  region: 'us-east-1',
 });
 
-function giftChoser (birthday){
-  const month = parseInt(birthday.split('-')[1]) 
-  const day = parseInt(birthday.split('-')[2]) 
-  
-  let gift
-  
-  if(month >= 1 && month <= 3 ){
-    if (month === 3 && day >= 21){
-      gift = 'Buzo'
+function giftChoser(birthday) {
+  const month = parseInt(birthday.split('-')[1]);
+  const day = parseInt(birthday.split('-')[2]);
+
+  let gift;
+
+  if (month >= 1 && month <= 3) {
+    if (month === 3 && day >= 21) {
+      gift = 'Buzo';
     } else {
-      gift = 'Remera'
-    }
-  }
-  
-  if(month >= 4 && month <= 6 ){
-    if (month === 6 && day >= 21){
-      gift = 'Sweater'
-    } else {
-      gift = 'Buzo'
-    }
-  }
-  
-  if(month >= 7 && month <= 9 ){
-    if (month === 9 && day >= 21){
-      gift = 'Camisa'
-    } else {
-      gift = 'Sweater'
-    }
-  }
-  
-  if(month >= 10 && month <= 12 ){
-    if (month === 12 && day >= 21){
-      gift = 'Remera'
-    } else {
-      gift = 'Camisa'
+      gift = 'Remera';
     }
   }
 
-  return gift
+  if (month >= 4 && month <= 6) {
+    if (month === 6 && day >= 21) {
+      gift = 'Sweater';
+    } else {
+      gift = 'Buzo';
+    }
+  }
+
+  if (month >= 7 && month <= 9) {
+    if (month === 9 && day >= 21) {
+      gift = 'Camisa';
+    } else {
+      gift = 'Sweater';
+    }
+  }
+
+  if (month >= 10 && month <= 12) {
+    if (month === 12 && day >= 21) {
+      gift = 'Remera';
+    } else {
+      gift = 'Camisa';
+    }
+  }
+
+  return gift;
 }
+
+const getDbParams = (body) => ({
+  ExpressionAttributeNames: {
+    '#G': 'gift',
+  },
+  ExpressionAttributeValues: {
+    ':g': {
+      S: giftChoser(body.birth),
+    },
+  },
+  Key: {
+    dni: {
+      S: body.dni,
+    },
+  },
+  ReturnValues: 'ALL_NEW',
+  TableName: process.env.CLIENTS_TABLE,
+  UpdateExpression: 'SET #G = :g',
+});
+
+const updateItems = async (dbParams) => {
+  try {
+    const dbResult = await dynamodb.updateItem(dbParams).promise();
+    // eslint-disable-next-line no-console
+    console.info(dbResult);
+    return dbResult;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return {
+      statusCode: 500,
+      body: error,
+    };
+  }
+};
 
 module.exports.handler = async (event) => {
   const queue = event.Records.map((record) => record.body);
 
+  return Promise.all([...queue]);
+
   for (const item of queue) {
-      const message = JSON.parse(item)
-      const body = JSON.parse(message.Message) 
+    const message = JSON.parse(item);
+    const body = JSON.parse(message.Message);
 
     const dbParams = {
       ExpressionAttributeNames: {
-        "#G": "gift",
+        '#G': 'gift',
       },
       ExpressionAttributeValues: {
-        ":g": {
+        ':g': {
           S: giftChoser(body.birth),
         },
       },
       Key: {
-        "dni": {
+        dni: {
           S: body.dni,
         },
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
       TableName: process.env.CLIENTS_TABLE,
-      UpdateExpression: "SET #G = :g",
+      UpdateExpression: 'SET #G = :g',
     };
 
     try {
@@ -85,6 +122,6 @@ module.exports.handler = async (event) => {
 
   return {
     statusCode: 200,
-    body: "Gifts created succesfully",
+    body: 'Gifts created succesfully',
   };
 };
