@@ -39,6 +39,78 @@ functions:
           method: post
           cors: true
 
+  GetAllClients:
+    handler: clients-crud/handler/clients-crud.getAll
+    name: ${self:service}-${self:provider.stage}-get-all-clients-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients
+          method: get
+          cors: true
+
+  GetClientById:
+    handler: clients-crud/handler/clients-crud.getById
+    name: ${self:service}-${self:provider.stage}-get-client-by-id-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{id}
+          method: get
+          cors: true
+  
+  UpdateClient:
+    handler: clients-crud/handler/clients-crud.update
+    name: ${self:service}-${self:provider.stage}-update-client-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{id}
+          method: put
+          cors: true
+
+  DeleteClient:
+    handler: clients-crud/handler/clients-crud.delete
+    name: ${self:service}-${self:provider.stage}-delete-client-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{id}
+          method: delete
+          cors: true
+
   CreateCard:
     # handler: create-card/create-card.handler
     handler: create-card/handler/create-card.handler
@@ -55,6 +127,49 @@ functions:
     events:
       - sqs:
           arn: !GetAtt CreateCardQueue.Arn
+
+  CreateProducts:
+    handler: products-curd/handler/products-curd.createProducts
+    name: ${self:service}-${self:provider.stage}-create-products-function
+    environment:
+      PRODUCTS_TABLE: !Ref ProductsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+        Resource:
+          - !GetAtt ProductsTable.Arn
+    events:
+      - http:
+          path: /products
+          method: post
+          cors: true
+
+  Buy:
+    handler: create-client/handler/create-client.buy
+    name: ${self:service}-${self:provider.stage}-buy-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+      PRODUCTS_TABLE: !Ref ProductsTable
+      CLIENTS_CREATED_TOPIC: !Ref ClientCreatedTopic
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:getItem
+        Resource:
+          - !GetAtt ProductsTable.Arn
+    events:
+      - http:
+          path: /compra
+          method: post
+          cors: true
 
   CreateGift:
     # handler: create-gift/create-gift.handler
@@ -86,6 +201,21 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: dni
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+  
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      # DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:service}-${self:provider.stage}-products-table
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

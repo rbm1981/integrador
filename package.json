@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.910.0",
-    "ebased": "^1.6.2"
+    "ebased": "^1.6.2",
+    "schemy": "^1.11.0"
   },
   "devDependencies": {
     "eslint": "^8.23.0",
