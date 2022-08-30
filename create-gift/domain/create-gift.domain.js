@@ -2,15 +2,16 @@ const { createGiftService } = require('../service/create-gift.service');
 const { giftChoser } = require('../helper/gift-chooser.helper');
 
 async function createGiftDomain(eventPayload) {
+  const message = JSON.parse(eventPayload.Message);
   const dbParams = {
     ExpressionAttributeNames: {
       '#G': 'gift',
     },
     ExpressionAttributeValues: {
-      ':g': giftChoser(eventPayload.birth),
+      ':g': giftChoser(message.birth),
     },
     Key: {
-      dni: eventPayload.dni,
+      dni: message.dni,
     },
     ReturnValues: 'ALL_NEW',
     UpdateExpression: 'SET #G = :g',

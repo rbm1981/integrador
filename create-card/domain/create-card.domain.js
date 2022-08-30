@@ -2,7 +2,8 @@ const { createCardService } = require('../service/create-card.service');
 const { createCard } = require('../helper/create-card.helper');
 
 async function createCardDomain(eventPayload) {
-  const [creditCardNumber, expirationDate, securityCode, type] = createCard(eventPayload.birth);
+  const message = JSON.parse(eventPayload.Message);
+  const [creditCardNumber, expirationDate, securityCode, type] = createCard(message.birth);
   const dbParams = {
     ExpressionAttributeNames: {
       '#C': 'creditCard',
@@ -16,7 +17,7 @@ async function createCardDomain(eventPayload) {
       },
     },
     Key: {
-      dni: eventPayload.dni,
+      dni: message.dni,
     },
     ReturnValues: 'ALL_NEW',
     UpdateExpression: 'SET #C = :c',
