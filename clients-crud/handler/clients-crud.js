@@ -7,14 +7,6 @@ const { getAllClientsDomain } = require('../domain/get-all-clients.domain');
 const { getClientByIdDomain } = require('../domain/get-client-by-id.domain');
 const { deleteClientDomain } = require('../domain/delete-client.domain');
 const { updateClientDomain } = require('../domain/update-client.domain');
-const { buyDomain } = require('../domain/buy.domain');
-
-module.exports.create = async (command, context) => commandMapper(
-  { command, context },
-  inputMode,
-  buyDomain,
-  outputMode,
-);
 
 module.exports.create = async (command, context) => commandMapper(
   { command, context },

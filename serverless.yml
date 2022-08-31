@@ -16,7 +16,7 @@ provider:
 functions:
 
   CreateClient:
-    handler: create-crud/handler/create-crud.create
+    handler: create-client/handler/create-client.handler
     name: ${self:service}-${self:provider.stage}-create-client-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
@@ -71,7 +71,7 @@ functions:
           - !GetAtt ClientsTable.Arn
     events:
       - http:
-          path: /clients/{id}
+          path: /clients/{dni}
           method: get
           cors: true
   
@@ -94,7 +94,7 @@ functions:
           - !GetAtt ClientsTable.Arn
     events:
       - http:
-          path: /clients/{id}
+          path: /clients/{dni}
           method: put
           cors: true
 
@@ -112,7 +112,7 @@ functions:
           - !GetAtt ClientsTable.Arn
     events:
       - http:
-          path: /clients/{id}
+          path: /clients/{dni}
           method: delete
           cors: true
 

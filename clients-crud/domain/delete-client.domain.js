@@ -9,11 +9,10 @@ async function deleteClientDomain(commandPayload) {
       ':g': false,
     },
     Key: {
-      dni: commandPayload.id,
+      dni: commandPayload.dni,
     },
     ReturnValues: 'ALL_NEW',
     UpdateExpression: 'SET #G = :g',
-
   };
   await deleteClientService(dbParams);
   return {
