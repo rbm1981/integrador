@@ -1,9 +1,9 @@
 const dynamo = require('ebased/service/storage/dynamo');
 
 async function deleteClientService(commandPayload) {
-  await dynamo.update({
+  await dynamo.updateItem({
+    ...commandPayload,
     TableName: process.env.CLIENTS_TABLE,
-    Key: { dni: commandPayload.dni },
   });
 }
 

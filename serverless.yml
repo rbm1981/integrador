@@ -16,7 +16,7 @@ provider:
 functions:
 
   CreateClient:
-    handler: create-client/handler/create-client.handler
+    handler: create-crud/handler/create-crud.create
     name: ${self:service}-${self:provider.stage}-create-client-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
@@ -81,7 +81,12 @@ functions:
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
     iamRoleStatementsInherit: true
-    iamRoleStatements: 
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - !Ref UpdatedClientTopic
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
@@ -147,7 +152,7 @@ functions:
           cors: true
 
   Buy:
-    handler: create-client/handler/create-client.buy
+    handler: clients-crud/handler/clients-crud.buy
     name: ${self:service}-${self:provider.stage}-buy-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
@@ -221,6 +226,17 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 
+    UpdatedClientTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Updated Client Topic
+        TopicName: ${self:service}-${self:provider.stage}-updated-client-topic
+        Subscription:
+          - Protocol: sqs
+            Endpoint: !GetAtt CreateCardQueue.Arn
+          - Protocol: sqs
+            Endpoint: !GetAtt CreateGiftQueue.Arn
+  
     ClientCreatedTopic:
       Type: AWS::SNS::Topic
       Properties:
@@ -260,6 +276,17 @@ resources:
                 ArnLike:
                   aws:SourceArn:
                     - !Ref ClientCreatedTopic
+            - Effect: Allow
+              Principal:
+                AWS: 
+                  - '*'
+              Action: 
+                - SQS:SendMessage
+              Resource: !GetAtt CreateCardQueue.Arn
+              Condition:
+                ArnLike:
+                  aws:SourceArn:
+                    - !Ref UpdatedClientTopic
         Queues: 
           - !Ref CreateCardQueue
 
@@ -291,5 +318,16 @@ resources:
                 ArnLike:
                   aws:SourceArn:
                     - !Ref ClientCreatedTopic
+            - Effect: Allow
+              Principal:
+                AWS: 
+                  - '*'
+              Action: 
+                - SQS:SendMessage
+              Resource: !GetAtt CreateGiftQueue.Arn
+              Condition:
+                ArnLike:
+                  aws:SourceArn:
+                    - !Ref UpdatedClientTopic
         Queues: 
           - !Ref CreateGiftQueue

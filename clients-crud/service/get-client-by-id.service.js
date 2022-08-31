@@ -1,9 +1,9 @@
 const dynamo = require('ebased/service/storage/dynamo');
 
 async function getClientByIdService(commandPayload) {
-  await dynamo.getItem({
+  return dynamo.getItem({
     TableName: process.env.CLIENTS_TABLE,
-    Key: { dni: commandPayload.dni },
+    Key: { dni: commandPayload.id },
   });
 }
 

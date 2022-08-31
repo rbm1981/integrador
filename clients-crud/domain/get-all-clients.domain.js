@@ -1,11 +1,11 @@
 const { getAllClientsService } = require('../service/get-all-clients.service');
 
-async function getAllClientsDomain(commandPayload) {
-  await getAllClientsService(commandPayload);
+async function getAllClientsDomain() {
+  const { Items } = await getAllClientsService();
 
   return {
     statusCode: 200,
-    body: 'Client added succesfully',
+    body: Items,
   };
 }
 
