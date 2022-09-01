@@ -16,7 +16,7 @@ provider:
 functions:
 
   CreateClient:
-    handler: create-client/handler/create-client.handler
+    handler: clients-crud/handler/clients-crud.create
     name: ${self:service}-${self:provider.stage}-create-client-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
@@ -80,6 +80,7 @@ functions:
     name: ${self:service}-${self:provider.stage}-update-client-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
+      CLIENTS_UPDATED_TOPIC: !Ref UpdatedClientTopic
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: Allow
@@ -90,6 +91,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+          - dynamodb:getItem
         Resource:
           - !GetAtt ClientsTable.Arn
     events:
@@ -134,7 +136,7 @@ functions:
           arn: !GetAtt CreateCardQueue.Arn
 
   CreateProducts:
-    handler: products-curd/handler/products-curd.createProducts
+    handler: products-crud/handler/products-crud.createProducts
     name: ${self:service}-${self:provider.stage}-create-products-function
     environment:
       PRODUCTS_TABLE: !Ref ProductsTable

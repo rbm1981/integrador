@@ -20,19 +20,17 @@ async function updateClientDomain(commandPayload, commandMeta) {
   const dbParams = {
     ExpressionAttributeNames: {
       '#G': 'name',
-      '#H': 'lastName',
-      '#I': 'birth',
     },
     ExpressionAttributeValues: {
-      ':g': commandPayload.name,
-      ':h': commandPayload.lastName,
-      ':i': commandPayload.birth,
+      ':name': commandPayload.name,
+      ':lastName': commandPayload.lastName,
+      ':birth': commandPayload.birth,
     },
     Key: {
       dni: commandPayload.dni,
     },
     ReturnValues: 'ALL_NEW',
-    UpdateExpression: 'SET #G = :g; SET #H = :h; SET #I = :i',
+    UpdateExpression: 'SET #G = :name, lastName = :lastName, birth = :birth',
   };
   await updateClientService(dbParams);
   if (commandPayload.birth !== Item.birth) {

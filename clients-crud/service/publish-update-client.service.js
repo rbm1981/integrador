@@ -4,7 +4,7 @@ async function publishUpdatedClient(clientCreatedEvent) {
   const { eventPayload, eventMeta } = clientCreatedEvent.get();
 
   const snsPublishParams = {
-    TopicArn: process.env.CLIENTS_CREATED_TOPIC,
+    TopicArn: process.env.CLIENTS_UPDATED_TOPIC,
     Message: eventPayload,
   };
 

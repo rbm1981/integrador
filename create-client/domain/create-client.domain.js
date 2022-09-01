@@ -23,7 +23,7 @@ async function createClientDomain(commandPayload, commandMeta) {
     };
   }
 
-  await createClientService(commandPayload);
+  await createClientService({ ...commandPayload, enabled: true });
   await publishClientCreated(new ClientCreated(commandPayload, commandMeta));
 
   return {
