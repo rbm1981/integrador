@@ -2,11 +2,11 @@ const { commandMapper } = require('ebased/handler');
 const inputMode = require('ebased/handler/input/commandApi');
 const outputMode = require('ebased/handler/output/commandApi');
 
-const { createProductDomain } = require('../domain/create-product.domain');
+const { CreatePurchaseDomain } = require('../domain/create-purchase.domain');
 
-module.exports.createProduct = async (command, context) => commandMapper(
+module.exports.createPurchase = async (command, context) => commandMapper(
   { command, context },
   inputMode,
-  createProductDomain,
+  CreatePurchaseDomain,
   outputMode,
 );

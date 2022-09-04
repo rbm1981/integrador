@@ -136,15 +136,15 @@ functions:
           arn: !GetAtt CreateCardQueue.Arn
 
   CreateProducts:
-    handler: products-crud/handler/products-crud.createProducts
-    name: ${self:service}-${self:provider.stage}-create-products-function
+    handler: products-crud/handler/products-crud.createProduct
+    name: ${self:service}-${self:provider.stage}-create-product-function
     environment:
       PRODUCTS_TABLE: !Ref ProductsTable
     iamRoleStatementsInherit: true
     iamRoleStatements: 
       - Effect: Allow
         Action:
-          - dynamodb:BatchWriteItem
+          - dynamodb:PutItem
         Resource:
           - !GetAtt ProductsTable.Arn
     events:
@@ -153,25 +153,30 @@ functions:
           method: post
           cors: true
 
-  Buy:
-    handler: clients-crud/handler/clients-crud.buy
-    name: ${self:service}-${self:provider.stage}-buy-function
+  CreatePurchase:
+    handler: purchases-crud/handler/purchases-crud.createPurchase
+    name: ${self:service}-${self:provider.stage}-create-purchase-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
       PRODUCTS_TABLE: !Ref ProductsTable
-      CLIENTS_CREATED_TOPIC: !Ref ClientCreatedTopic
+      PURCHASES_TABLE: !Ref PurchasesTable
     iamRoleStatementsInherit: true
     iamRoleStatements: 
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
+          - dynamodb:getItem
         Resource:
           - !GetAtt ClientsTable.Arn
       - Effect: Allow
         Action:
-          - dynamodb:getItem
+          - dynamodb:putItem
         Resource:
-          - !GetAtt ProductsTable.Arn
+          - !GetAtt PurchasesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
     events:
       - http:
           path: /compra
@@ -218,6 +223,21 @@ resources:
       # DeletionPolicy: Retain
       Properties:
         TableName: ${self:service}-${self:provider.stage}-products-table
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    PurchasesTable:
+      Type: AWS::DynamoDB::Table
+      # DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:service}-${self:provider.stage}-purchases-table
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

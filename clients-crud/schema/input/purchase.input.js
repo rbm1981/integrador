@@ -7,10 +7,10 @@ const Product = new Schemy({
   price: { type: Number, required: true },
 });
 
-class CreateClientValidation extends InputValidation {
+class PurchaseValidation extends InputValidation {
   constructor(payload, meta) {
     super({
-      type: 'PRODUCTS.CREATE_PRODUCTS',
+      type: 'PURCHASE.PURCHASE',
       specversion: 'v1.0.0',
       source: meta.source,
       payload,
@@ -21,4 +21,4 @@ class CreateClientValidation extends InputValidation {
   }
 }
 
-module.exports = { CreateClientValidation };
+module.exports = { PurchaseValidation };
