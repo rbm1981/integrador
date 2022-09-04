@@ -33,9 +33,9 @@ async function CreatePurchaseDomain(commandPayload, commandMeta) {
     console.log('producstSum', producstSum);
     commandPayload.total = producstSum + ((discount / 100) * producstSum);
     console.log('commandPayload', commandPayload);
-    const clclientTotal = client?.purchases?.total ? client?.purchases?.total : 0;
-    console.log('clclientTotal', clclientTotal);
-    const clientTotalCumulative = clclientTotal + commandPayload.total;
+    const clientTotal = client?.totalPurchases ? client?.totalPurchases : 0;
+    console.log('clclientTotal', clientTotal);
+    const clientTotalCumulative = clientTotal + commandPayload.total;
     console.log('clientTotalCumulative', clientTotalCumulative);
 
     const dbParams = {
