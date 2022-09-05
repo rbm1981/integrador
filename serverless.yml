@@ -1,5 +1,5 @@
 frameworkVersion: '3'
-service: ricardomaggi-ejercicio-ebased
+service: ricardomaggi-ejercicio-integrador
 
 custom:
   owner: ricardomaggi
@@ -16,7 +16,7 @@ provider:
 functions:
 
   CreateClient:
-    handler: create-client/handler/create-client.handler
+    handler: clients-crud/handler/clients-crud.create
     name: ${self:service}-${self:provider.stage}-create-client-function
     environment:
       CLIENTS_TABLE: !Ref ClientsTable
@@ -39,6 +39,85 @@ functions:
           method: post
           cors: true
 
+  GetAllClients:
+    handler: clients-crud/handler/clients-crud.getAll
+    name: ${self:service}-${self:provider.stage}-get-all-clients-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients
+          method: get
+          cors: true
+
+  GetClientById:
+    handler: clients-crud/handler/clients-crud.getById
+    name: ${self:service}-${self:provider.stage}-get-client-by-id-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{dni}
+          method: get
+          cors: true
+  
+  UpdateClient:
+    handler: clients-crud/handler/clients-crud.update
+    name: ${self:service}-${self:provider.stage}-update-client-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+      CLIENTS_UPDATED_TOPIC: !Ref UpdatedClientTopic
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource:
+          - !Ref UpdatedClientTopic
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:getItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{dni}
+          method: put
+          cors: true
+
+  DeleteClient:
+    handler: clients-crud/handler/clients-crud.delete
+    name: ${self:service}-${self:provider.stage}-delete-client-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /clients/{dni}
+          method: delete
+          cors: true
+
   CreateCard:
     # handler: create-card/create-card.handler
     handler: create-card/handler/create-card.handler
@@ -55,6 +134,54 @@ functions:
     events:
       - sqs:
           arn: !GetAtt CreateCardQueue.Arn
+
+  CreateProducts:
+    handler: products-crud/handler/products-crud.createProduct
+    name: ${self:service}-${self:provider.stage}-create-product-function
+    environment:
+      PRODUCTS_TABLE: !Ref ProductsTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - !GetAtt ProductsTable.Arn
+    events:
+      - http:
+          path: /products
+          method: post
+          cors: true
+
+  CreatePurchase:
+    handler: purchases-crud/handler/purchases-crud.createPurchase
+    name: ${self:service}-${self:provider.stage}-create-purchase-function
+    environment:
+      CLIENTS_TABLE: !Ref ClientsTable
+      PRODUCTS_TABLE: !Ref ProductsTable
+      PURCHASES_TABLE: !Ref PurchasesTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements: 
+      - Effect: Allow
+        Action:
+          - dynamodb:getItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:putItem
+        Resource:
+          - !GetAtt PurchasesTable.Arn
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - !GetAtt ClientsTable.Arn
+    events:
+      - http:
+          path: /compra
+          method: post
+          cors: true
 
   CreateGift:
     # handler: create-gift/create-gift.handler
@@ -90,7 +217,48 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+  
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      # DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:service}-${self:provider.stage}-products-table
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
+    PurchasesTable:
+      Type: AWS::DynamoDB::Table
+      # DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:service}-${self:provider.stage}-purchases-table
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    UpdatedClientTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Updated Client Topic
+        TopicName: ${self:service}-${self:provider.stage}-updated-client-topic
+        Subscription:
+          - Protocol: sqs
+            Endpoint: !GetAtt CreateCardQueue.Arn
+          - Protocol: sqs
+            Endpoint: !GetAtt CreateGiftQueue.Arn
+  
     ClientCreatedTopic:
       Type: AWS::SNS::Topic
       Properties:
@@ -130,6 +298,17 @@ resources:
                 ArnLike:
                   aws:SourceArn:
                     - !Ref ClientCreatedTopic
+            - Effect: Allow
+              Principal:
+                AWS: 
+                  - '*'
+              Action: 
+                - SQS:SendMessage
+              Resource: !GetAtt CreateCardQueue.Arn
+              Condition:
+                ArnLike:
+                  aws:SourceArn:
+                    - !Ref UpdatedClientTopic
         Queues: 
           - !Ref CreateCardQueue
 
@@ -161,5 +340,16 @@ resources:
                 ArnLike:
                   aws:SourceArn:
                     - !Ref ClientCreatedTopic
+            - Effect: Allow
+              Principal:
+                AWS: 
+                  - '*'
+              Action: 
+                - SQS:SendMessage
+              Resource: !GetAtt CreateGiftQueue.Arn
+              Condition:
+                ArnLike:
+                  aws:SourceArn:
+                    - !Ref UpdatedClientTopic
         Queues: 
           - !Ref CreateGiftQueue

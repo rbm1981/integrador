@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "a59e30c7-43c8-47f1-9dbe-9c6cc71e147c",
+		"name": "MySls",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22976039"
+	},
+	"item": [
+		{
+			"name": "createClient",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dni\": \"28327818\",\n  \"name\": \"Benjamin\",\n  \"lastName\": \"Maggi\",\n  \"birth\": \"1981-08-02\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/client",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"client"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "product",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"1\",\n    \"label\": \"Apple\",\n    \"price\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/products",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "compras",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"dni\": \"28327817\",\n    \"products\": [{\n        \"id\": \"1\",\n        \"label\": \"Wine\",\n        \"price\": 300\n    }, {\n        \"id\": \"2\",\n        \"label\": \"Bread\",\n        \"price\": 230\n    }]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/compra",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"compra"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getClientById",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/clients/28327817",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"clients",
+						"28327817"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllClients",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/clients",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"clients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteClient",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/clients",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"clients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateClient",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://training.cloudnaranja.com/ricardomaggi/clients/28327817",
+					"protocol": "https",
+					"host": [
+						"training",
+						"cloudnaranja",
+						"com"
+					],
+					"path": [
+						"ricardomaggi",
+						"clients",
+						"28327817"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

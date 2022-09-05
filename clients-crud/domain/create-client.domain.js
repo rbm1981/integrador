@@ -11,6 +11,7 @@ const { ClientCreated } = require('../schema/event/client-created.event');
 const { calculateAge } = require('../helper/calculate-age.helper');
 
 async function createClientDomain(commandPayload, commandMeta) {
+  // eslint-disable-next-line no-new
   new CreateClientValidation(commandPayload, commandMeta);
 
   if (
